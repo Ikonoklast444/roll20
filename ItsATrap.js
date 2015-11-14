@@ -9,8 +9,8 @@
  * This script works best for square traps equal or less than 2x2 squares or
  * circular traps of any size.
  */
-
 var ItsATrap = (function() {
+
   /**
    * Returns the first trap a token collided with during its last movement.
    * If it didn't collide with any traps, return false.
@@ -18,13 +18,14 @@ var ItsATrap = (function() {
    * @return {Graphic || false}
    */
   var getTrapCollision = function(token) {
-    var traps = getTrapTokens();
-    traps = filterList(traps, function(trap) {
-      return !isTokenFlying(token) || isTokenFlying(trap);
-    });
+      var traps = getTrapTokens();
+      traps = filterList(traps, function(trap) {
+          return !isTokenFlying(token) || isTokenFlying(trap);
+      });
 
-    return TokenCollisions.getFirstCollision(token, traps);
+      return TokenCollisions.getFirstCollision(token, traps);
   };
+
 
   /**
    * Determines whether a token is currently flying.
@@ -32,8 +33,10 @@ var ItsATrap = (function() {
    * @return {Boolean}
    */
   var isTokenFlying = function(token) {
-    return (token.get("status_fluffy-wing") || token.get("status_angel-outfit"));
+      return (token.get("status_fluffy-wing") ||
+              token.get("status_angel-outfit"));
   };
+
 
   /**
    * Moves the specified token to the same position as the trap.
@@ -49,16 +52,21 @@ var ItsATrap = (function() {
     token.set("top", y);
   };
 
+
+
+
   /**
    * Returns all trap tokens on the players' page.
    */
   var getTrapTokens = function() {
-    var currentPageId = Campaign().get("playerpageid");
-    return findObjs({_pageid: currentPageId,
-      _type: "graphic",
-      status_cobweb: true,
-      layer: "gmlayer"});
+      var currentPageId = Campaign().get("playerpageid");
+      return findObjs({_pageid: currentPageId,
+                              _type: "graphic",
+                              status_cobweb: true,
+                              layer: "gmlayer"});
   };
+
+
 
   /**
    * Filters items out from a list using some filtering function.
@@ -71,68 +79,82 @@ var ItsATrap = (function() {
    * @return {Object[]}
    */
   var filterList = function(list, filterFunc) {
-    var results = [];
-    for(var i=0; i<list.length; i++) {
-      var item = list[i];
-      if(filterFunc(item)) {
-        results.push(item);
+      var results = [];
+      for(var i=0; i<list.length; i++) {
+          var item = list[i];
+          if(filterFunc(item)) {
+              results.push(item);
+          }
       }
-    }
-    return results;
+      return results;
   }
+
 
   /**
    * When a graphic on the objects layer moves, run the script to see if it
    * passed through any traps.
    */
   on("change:graphic", function(obj, prev) {
-    var activePage = Campaign().get('playerpageid');
+      var activePage = Campaign().get('playerpageid');
 
-    // Objects on the GM layer don't set off traps.
-    if(obj.get("layer") === "objects" && obj.get('_pageid') == activePage) {
-      //  log('last move for ' + obj.get('name') + ':');
-      //  log(obj.get('lastmove'));
+      // Objects on the GM layer don't set off traps.
+      if(obj.get("layer") === "objects" && obj.get('_pageid') == activePage) {
+        //  log('last move for ' + obj.get('name') + ':');
+        //  log(obj.get('lastmove'));
 
-      var trap = getTrapCollision(obj);
+          var trap = getTrapCollision(obj);
 
-      if(trap) {
-        var trapName = trap.get("name");
-        var charID = obj.get("represents");
-
-        if(trap.get("bar2_value") != "" && charID != "") {
-          var percMod = getSkillMod(charID,"Perception");
-          //sendChat("God","/r [[d20+" + percMod + "]]");
-          //var perCheck = randomInteger(20);
-          //sendChat("Debug",String(perCheck));
-          sendChat("Debug","&{template:pf_generic} {{character_name=" + obj.get("name") + "}} {{character_id=" + charID + "}} {{name=Perception}}{{Check=[[1d20 + " + percMod + " ]]}}");
-          on("chat:message", function(msg) {
-            log(msg.type);
-            if(msg.type == "rollresult") {
-              var roll = JSON.parse(msg.content);
-              var trapDC = trap.get("bar2_value");
-
-              if(roll.total >= trapDC) {
-                sendChat("DM","You Spotted the Trap. " + trapDC );
-              } else {
-                sendChat("DM","You didn't spot the trap.");
+          if(trap) {
+              var trapName = trap.get("name");      
+              var charID = obj.get("represents");
+              
+             if(trap.get("bar2_value") != "" && charID != "")
+              {
+                var percMod = getSkillMod(charID,"Perception","WIS");
+                sendChat("God","[[1d20+" + percMod + "]]");
+                var check = true;
+;
+                on("chat:message", function(msg) 
+                {
+                  
+                 
+                  if(check) 
+                  {
+                    var percTotal = parseInt(msg.inlinerolls[0].results.total);               
+                    var trapDC = trap.get("bar2_value");                    
+                    if(percTotal >= trapDC)
+                    {
+                        sendChat("DM","You Spotted the Trap. " + trapDC );    
+                    }
+                    else
+                    {
+                        sendChat("DM","You didn't spot the trap.");
+                    }
+                  }
+                  check = false;
+                  
+                });
+               
               }
-            }
-          });
-        } else {
-          if(trapName) {
-            sendChat("Admiral Ackbar", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap: " + trapName + "!");
-          } else {
-            sendChat("Admiral Ackbar", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap!");
+              else{
+                 if(trapName) {
+                sendChat("Admiral Ackbar", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap: " + trapName + "!");
+                 }
+                 else {
+                sendChat("Admiral Ackbar", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap!");
+              }
+
+              }
+              
+              
+
+              moveTokenToTrap(obj, trap);
+
+              if(trap.get("status_bleeding-eye")) {
+                  trap.set("layer","objects");
+                  toBack(trap);
+              }
           }
-        }
-
-        moveTokenToTrap(obj, trap);
-
-        if(trap.get("status_bleeding-eye")) {
-          trap.set("layer","objects");
-          toBack(trap);
-        }
       }
-    }
   });
 })();
