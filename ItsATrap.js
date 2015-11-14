@@ -138,10 +138,10 @@ var ItsATrap = (function() {
               }
               else{
                  if(trapName) {
-                sendChat("Admiral Ackbar", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap: " + trapName + "!");
+                sendChat("DM", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap: " + trapName + "!");
                  }
                  else {
-                sendChat("Admiral Ackbar", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap!");
+                sendChat("DM", "IT'S A TRAP!!! " + obj.get("name") + " set off a trap!");
               }
 
               }
