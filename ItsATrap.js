@@ -111,7 +111,9 @@ var ItsATrap = (function() {
              if(trap.get("bar2_value") != "" && charID != "")
               {
                 var percMod = getSkillMod(charID,"Perception","WIS");
-                sendChat("God","[[1d20+" + percMod + "]]");
+                //sendChat("God","[[1d20+" + percMod + "]]");
+                sendChat("DM","&{template:pf_generic} {{character_name=" + obj.get("name") + "}} {{character_id=" + charID + "}} {{name=Perception}} {{Check=[[1d20 + " + percMod + "]]}}");
+
                 var check = true;
 ;
                 on("chat:message", function(msg) 
