@@ -18,11 +18,11 @@ function getSkillMod(charID, skill, mod)
     var getStatMod = function(charID, stat)
     {
         var statTotal = 0;
-        for(i=1; i<=10;i++)
+        /*for(i=1; i<=10;i++)
         {
             statTotal += isNullReturn0(charID,"buff"+i+"_Toggle") * isNullReturn0(charID,"buff" + i + "_" + stat + "_macro-text");
-        }
-        var statbase = parseInt(getAttrByName(charID,stat + "-base")) + parseInt(getAttrByName(charID,stat + "-enhance"))  + parseInt(getAttrByName(charID,stat + "-misc"))  +statTotal  + parseInt(getAttrByName(charID,stat + "-drain"));
+        }*/
+        var statbase = parseInt(getAttrByName(charID,stat + "-base")) + parseInt(getAttrByName(charID,stat + "-enhance"))  + parseInt(getAttrByName(charID,stat + "-misc")) + parseInt(getAttrByName(charID,stat + "-drain"));// +statTotal 
         var stat_mod = ((Math.floor(statbase/2)-5) + 
             (Math.floor(isNullReturn0(charID,stat + "-temp")/2)) - 
             (Math.floor(Math.abs(isNullReturn0(charID,stat + "-damage")/2))) - 
